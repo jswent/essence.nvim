@@ -183,44 +183,11 @@ highlight default link essenceLogicalOperator       Operator
 highlight default link essenceComparisonOperator    Operator
 highlight default link essenceSpecialInfix          Delimiter
 
-let b:current_syntax = 'essence'
-
-" Following adapted from https://github.com/Bilalh/Essence-Syntax-Highlighting
-
-" conjureLog
+" conjureLog - Special highlighting for Conjure log output
 syntax match conjureLog '^\[\a\{-}\]'
 highlight default link conjureLog Special
 
-" Conceal operators with nicer symbols
-if exists('g:no_essence_conceal') || !has('conceal') || &enc != 'utf-8'
-    finish
-endif
+let b:current_syntax = 'essence'
 
-if exists('g:essence_conceal')
-    syntax keyword essenceNiceOperator exists       conceal cchar=∃
-    syntax keyword essenceNiceOperator forAll       conceal cchar=∀
-    syntax keyword essenceNiceOperator in           conceal cchar=∈
-    syntax keyword essenceNiceOperator intersect    conceal cchar=∩
-    syntax keyword essenceNiceOperator lambda       conceal cchar=λ
-    syntax keyword essenceNiceOperator subset       conceal cchar=⊂
-    syntax keyword essenceNiceOperator subsetEq     conceal cchar=⊆
-    syntax keyword essenceNiceOperator sum          conceal cchar=∑
-    syntax keyword essenceNiceOperator supset       conceal cchar=⊃
-    syntax keyword essenceNiceOperator supsetEq     conceal cchar=⊇
-    syntax keyword essenceNiceOperator union        conceal cchar=∪
-
-    syntax match essenceNiceOperator '\*'   conceal cchar=×
-    syntax match essenceNiceOperator '!'    conceal cchar=¬
-    syntax match essenceNiceOperator '->'   conceal cchar=⇒
-    syntax match essenceNiceOperator '<->'  conceal cchar=⇔
-    syntax match essenceNiceOperator '!='   conceal cchar=≠
-    syntax match essenceNiceOperator '<='   conceal cchar=≤
-    syntax match essenceNiceOperator '>='   conceal cchar=≥
-    syntax match essenceNiceOperator '/\\'  conceal cchar=∧
-    syntax match essenceNiceOperator '\\/'  conceal cchar=∨
-    syntax match essenceNiceOperator '-->'  conceal cchar=→
-
-    highlight link essenceNiceOperator Operator
-    highlight! link Conceal Operator
-    setlocal conceallevel=2
-endif
+" Note: Concealment is handled entirely through Lua API in lua/essence/conceal.lua
+" This provides better runtime control and eliminates the need for global variables

@@ -174,8 +174,6 @@ end
 function M.enable_global()
   local essence = require("essence")
   essence.config.conceal = true
-  vim.g.essence_conceal = 1
-  vim.g.no_essence_conceal = nil
 
   -- Apply to all currently open essence buffers
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
@@ -195,8 +193,6 @@ end
 function M.disable_global()
   local essence = require("essence")
   essence.config.conceal = false
-  vim.g.essence_conceal = nil
-  vim.g.no_essence_conceal = 1
 
   -- Remove from all currently open essence buffers
   for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
