@@ -56,21 +56,13 @@ local function apply_conceal_syntax(bufnr)
     -- Add keyword conceal rules
     for _, item in ipairs(conceal_keywords) do
       local word, char = item[1], item[2]
-      vim.cmd(string.format(
-        "syntax keyword essenceNiceOperator %s conceal cchar=%s",
-        word,
-        char
-      ))
+      vim.cmd(string.format("syntax keyword essenceNiceOperator %s conceal cchar=%s", word, char))
     end
 
     -- Add match conceal rules
     for _, item in ipairs(conceal_matches) do
       local pattern, char = item[1], item[2]
-      vim.cmd(string.format(
-        "syntax match essenceNiceOperator '%s' conceal cchar=%s",
-        pattern,
-        char
-      ))
+      vim.cmd(string.format("syntax match essenceNiceOperator '%s' conceal cchar=%s", pattern, char))
     end
 
     -- Link highlight groups
