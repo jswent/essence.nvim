@@ -19,7 +19,7 @@ This is a complete rewrite of [essence.vim](https://github.com/Druid-of-Luhn/ess
 
 ```lua
 {
-  "essence.nvim",
+  "jswent/essence.nvim",
   ft = "essence",  -- Lazy load on essence filetype
   opts = {
     conceal = false,  -- Enable Unicode concealing (default: false)
