@@ -15,3 +15,22 @@ vim.bo.autoindent = true
 
 -- Set up undo for buffer-local options
 vim.b.undo_ftplugin = "setlocal commentstring< autoindent<"
+
+-- Apply concealment settings
+-- This respects both global config and buffer-local overrides
+local function apply_concealment()
+  -- Only proceed if essence module is available
+  local ok, essence = pcall(require, "essence")
+  if not ok then
+    return
+  end
+
+  -- Check if we should enable concealment for this buffer
+  local conceal_module = require("essence.conceal")
+  if conceal_module.is_enabled() then
+    conceal_module.enable()
+  end
+end
+
+-- Apply concealment after a short delay to ensure syntax is loaded
+vim.defer_fn(apply_concealment, 10)

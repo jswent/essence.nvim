@@ -6,5 +6,5 @@ if vim.g.loaded_essence then
 end
 vim.g.loaded_essence = 1
 
--- Plugin is loaded via filetype detection and syntax files
--- No eager initialization needed
+-- Setup user commands
+require("essence.commands").setup()

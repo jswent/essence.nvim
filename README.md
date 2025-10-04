@@ -8,6 +8,7 @@ This is a complete rewrite of [essence.vim](https://github.com/Druid-of-Luhn/ess
 
 - 🎨 **Syntax Highlighting** - Complete syntax highlighting for Essence and Essence' languages
 - 👁️ **Concealing Support** - Optional Unicode symbol concealing for operators (e.g., `exists` → `∃`, `forAll` → `∀`)
+- 🔄 **Toggle API** - Comprehensive API for toggling concealment per-buffer or globally
 - 📝 **Filetype Detection** - Automatic detection for `.essence`, `.eprime`, `.param`, `.rule`, `.repr`, and more
 - 💬 **Comment Support** - Proper comment string configuration for Essence's `$` comment syntax
 - ⚡ **Lazy Loading** - Built with lazy.nvim compatibility in mind
@@ -26,8 +27,6 @@ This is a complete rewrite of [essence.vim](https://github.com/Druid-of-Luhn/ess
 }
 ```
 
-````
-
 ## Configuration
 
 ### Default Configuration
@@ -36,9 +35,11 @@ This is a complete rewrite of [essence.vim](https://github.com/Druid-of-Luhn/ess
 require("essence").setup({
   conceal = false,  -- Enable Unicode concealing of operators
 })
-````
+```
 
-### Conceal Operators
+### Concealing
+
+#### Conceal Operators
 
 When `conceal = true`, the following operators are concealed with Unicode symbols:
 
@@ -67,6 +68,86 @@ When `conceal = true`, the following operators are concealed with Unicode symbol
 | `-->`       | `→`       | Arrow                  |
 
 **Note:** Concealing requires UTF-8 encoding and a font with Unicode symbol support.
+
+#### Toggling Concealment
+
+essence.nvim provides a comprehensive API for toggling concealment both per-buffer and globally:
+
+##### User Commands
+
+```vim
+" Buffer-local commands (affect current buffer only)
+:EssenceConcealToggle        " Toggle concealment for current buffer
+:EssenceConcealEnable        " Enable concealment for current buffer
+:EssenceConcealDisable       " Disable concealment for current buffer
+
+" Global commands (affect all essence buffers)
+:EssenceConcealToggleGlobal  " Toggle concealment globally
+:EssenceConcealEnableGlobal  " Enable concealment globally
+:EssenceConcealDisableGlobal " Disable concealment globally
+
+" Status command
+:EssenceConcealStatus        " Show concealment status for current buffer
+```
+
+##### Lua API
+
+```lua
+local essence = require("essence")
+
+-- Buffer-local API (nil or bufnr parameter)
+essence.conceal_enable()           -- Enable for current buffer
+essence.conceal_enable(bufnr)      -- Enable for specific buffer
+essence.conceal_disable()          -- Disable for current buffer
+essence.conceal_toggle()           -- Toggle for current buffer
+essence.conceal_is_enabled()       -- Check if enabled for current buffer
+
+-- Global API (affects all essence buffers)
+essence.conceal_enable_global()    -- Enable globally
+essence.conceal_disable_global()   -- Disable globally
+essence.conceal_toggle_global()    -- Toggle globally
+
+-- Status API
+local status = essence.conceal_status()
+-- Returns: {
+--   enabled = true/false,              -- Whether concealment is enabled
+--   has_buffer_override = true/false,  -- Whether buffer has local override
+--   global_setting = true/false,       -- Global config setting
+--   conceallevel = 0-2,                -- Current conceallevel
+--   has_support = true/false,          -- Whether concealing is supported
+-- }
+```
+
+##### Keybindings (Example)
+
+You can create custom keybindings for easy toggling:
+
+```lua
+-- In your init.lua or after/ftplugin/essence.lua
+vim.keymap.set('n', '<leader>ec', function()
+  require('essence').conceal_toggle()
+end, { desc = 'Toggle essence concealment', buffer = true })
+```
+
+##### Per-Buffer vs Global Settings
+
+- **Global Setting**: Set via `setup({ conceal = true })` or `:EssenceConcealEnableGlobal`
+- **Buffer Override**: Use buffer-local commands/API to override global setting for specific buffers
+- **Priority**: Buffer-local settings always take precedence over global settings
+- **New Buffers**: Automatically inherit the global setting unless explicitly overridden
+
+Example workflow:
+
+```lua
+-- Start with concealment disabled globally
+require("essence").setup({ conceal = false })
+
+-- Enable for just the current buffer
+:EssenceConcealEnable
+
+-- Or enable globally for all future buffers
+:EssenceConcealEnableGlobal
+```
 
 ## Filetype Detection
 
