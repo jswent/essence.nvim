@@ -223,11 +223,25 @@ function M.status(bufnr)
   local buf_enabled = M.is_enabled(bufnr)
   local has_override = vim.b[bufnr].essence_conceal ~= nil
 
+  -- Get conceallevel efficiently: use current window if it's the current buffer
+  local conceallevel = nil
+  if bufnr == vim.api.nvim_get_current_buf() then
+    conceallevel = vim.wo.conceallevel
+  else
+    -- Find a window displaying this buffer
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_buf(win) == bufnr then
+        conceallevel = vim.api.nvim_get_option_value("conceallevel", { win = win })
+        break
+      end
+    end
+  end
+
   return {
     enabled = buf_enabled,
     has_buffer_override = has_override,
     global_setting = essence.config.conceal,
-    conceallevel = vim.api.nvim_get_option_value("conceallevel", { buf = bufnr }),
+    conceallevel = conceallevel,
     has_support = has_conceal_support(),
   }
 end
