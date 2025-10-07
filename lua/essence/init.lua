@@ -3,9 +3,12 @@
 ---@field color string Icon color (hex format)
 ---@field hl string Highlight group for mini.icons
 
+---@class LspConfig
+
 ---@class EssenceConfig
 ---@field conceal boolean Enable concealing of operators with Unicode symbols (default: false)
 ---@field icon IconConfig Icon configuration for the essence filetype
+---@field lsp LspConfig|boolean LSP configuration (boolean for enable/disable, or full config table)
 
 local M = {}
 
@@ -16,6 +19,11 @@ local default_config = {
     icon = "",
     color = "#56b6c2",
     hl = "MiniIconsCyan",
+  },
+  lsp = {
+    enabled = true,
+    cmd = { "conjure", "lsp" },
+    settings = {},
   },
 }
 
@@ -47,6 +55,18 @@ end
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", default_config, opts or {})
   setup_icons()
+
+  -- Setup LSP if enabled
+  local lsp_config = M.config.lsp
+  -- Handle boolean shorthand (lsp = true/false)
+  if type(lsp_config) == "boolean" then
+    lsp_config = { enabled = lsp_config }
+  end
+
+  if lsp_config and lsp_config.enabled ~= false then
+    local lsp = require("essence.lsp")
+    lsp.setup(lsp_config)
+  end
 end
 
 -- Lazy-load conceal module
