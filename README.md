@@ -9,6 +9,7 @@ This is a complete rewrite of [essence.vim](https://github.com/Druid-of-Luhn/ess
 - 🎨 **Syntax Highlighting** - Complete syntax highlighting for Essence and Essence' languages
 - 👁️ **Concealing Support** - Optional Unicode symbol concealing for operators (e.g., `exists` → `∃`, `forAll` → `∀`)
 - 🔄 **Toggle API** - Comprehensive API for toggling concealment per-buffer or globally
+- 🔌 **LSP Integration** - Built-in support for Conjure language server with automatic setup
 - 📝 **Filetype Detection** - Automatic detection for `.essence`, `.eprime`, `.param`, `.rule`, `.repr`, and more
 - 💬 **Comment Support** - Proper comment string configuration for Essence's `$` comment syntax
 - ⚡ **Lazy Loading** - Built with lazy.nvim compatibility in mind
@@ -148,6 +149,65 @@ require("essence").setup({ conceal = false })
 -- Or enable globally for all future buffers
 :EssenceConcealEnableGlobal
 ```
+
+## LSP Configuration
+
+essence.nvim includes built-in support for the [Conjure language server](https://conjure.readthedocs.io/), which provides features like diagnostics, hover documentation, and more for Essence files.
+
+### Requirements
+
+- [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+- [conjure](https://conjure.readthedocs.io/) binary in your PATH
+
+### Default Behavior
+
+LSP integration is **enabled by default** and will automatically start if the requirements are met. If `nvim-lspconfig` or the `conjure` binary is not found, the plugin will gracefully skip LSP setup and notify you.
+
+### Configuration
+
+#### Basic Configuration (Boolean)
+
+```lua
+require("essence").setup({
+  lsp = true,   -- Enable LSP (default)
+})
+```
+
+#### Advanced Configuration
+
+```lua
+require("essence").setup({
+  lsp = {
+    enabled = true,  -- Enable/disable LSP integration
+    cmd = { "conjure", "lsp" },  -- LSP server command (default)
+    settings = {
+      -- Pass settings to the LSP server
+      -- (configuration depends on conjure server capabilities)
+    },
+  },
+})
+```
+
+#### Custom LSP Command
+
+If you have `conjure` installed in a non-standard location or want to use custom arguments:
+
+```lua
+require("essence").setup({
+  lsp = {
+    cmd = { "/custom/path/to/conjure", "lsp", "--custom-flag" },
+  },
+})
+```
+
+### Notifications
+
+The plugin will notify you at different log levels:
+
+- **DEBUG**: `nvim-lspconfig` not installed (silent by default)
+- **WARN**: `conjure` binary not found in PATH (visible warning)
+
+You can check notifications with `:messages` if you encounter issues.
 
 ## Filetype Detection
 
