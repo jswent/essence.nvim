@@ -10,11 +10,15 @@ vim.b.did_ftplugin = 1
 -- Set comment string ($ is the comment character in Essence)
 vim.bo.commentstring = "$ %s"
 
+-- Configure comment continuation
+vim.bo.comments = "b:$"
+vim.bo.formatoptions = vim.bo.formatoptions .. "ro"
+
 -- Enable autoindent
 vim.bo.autoindent = true
 
 -- Set up undo for buffer-local options
-vim.b.undo_ftplugin = "setlocal commentstring< autoindent<"
+vim.b.undo_ftplugin = "setlocal commentstring< comments< formatoptions< autoindent<"
 
 -- Apply concealment settings
 -- This respects both global config and buffer-local overrides
