@@ -5,62 +5,34 @@
 
 local M = {}
 
----Check if a binary is executable
----@param binary string Binary name to check
----@return boolean
-local function is_executable(binary)
-  return vim.fn.executable(binary) == 1
-end
-
----Check if a plugin is available/loaded
----@param plugin string Plugin name
----@return boolean
-local function has_plugin(plugin)
-  local ok, _ = pcall(require, plugin)
-  return ok
-end
-
----Check if lazy.nvim is being used as the package manager
----@return boolean
-local function is_lazy_nvim()
-  -- Check if lazy is available
-  return has_plugin("lazy")
-end
-
----Setup LSP configuration for essence
----@param config LspConfig LSP configuration
+---Setup LSP using vim.lsp.config API (Neovim 0.11+)
+---@param cmd table Command to run the LSP server
+---@param settings table Server settings
 ---@return boolean success Whether setup was successful
-function M.setup(config)
-  -- Default to enabled if not specified
-  if config.enabled == false then
-    return false
-  end
+local function setup_vimlsp(cmd, settings)
+  vim.lsp.config("essence_lsp", {
+    cmd = cmd,
+    filetypes = { "essence" },
+    root_markers = { ".git" },
+    single_file_support = true,
+    settings = settings,
+  })
 
-  -- Check if nvim-lspconfig is installed
-  if not has_plugin("lspconfig") then
+  vim.lsp.enable("essence_lsp")
+  return true
+end
+
+---Setup LSP using lspconfig API (Neovim < 0.11)
+---@param cmd table Command to run the LSP server
+---@param settings table Server settings
+---@return boolean success Whether setup was successful
+local function setup_lspconfig(cmd, settings)
+  local ok, lspconfig = pcall(require, "lspconfig")
+  if not ok then
     vim.notify("essence.nvim LSP: nvim-lspconfig not installed, skipping LSP setup", vim.log.levels.DEBUG)
     return false
   end
 
-  -- TODO: Automatically download conjure binary if not present
-  -- Check if conjure binary is available
-  local cmd = config.cmd or { "conjure", "lsp" }
-  local binary = cmd[1]
-
-  if not is_executable(binary) then
-    vim.notify(
-      string.format(
-        "essence.nvim LSP: '%s' binary not found in PATH, skipping LSP setup\n"
-          .. "Please install conjure or set a custom command in config",
-        binary
-      ),
-      vim.log.levels.WARN
-    )
-    return false
-  end
-
-  -- All checks passed, configure the LSP server
-  local lspconfig = require("lspconfig")
   local configs = require("lspconfig.configs")
   local util = require("lspconfig.util")
 
@@ -79,15 +51,49 @@ function M.setup(config)
           -- Fallback to lspconfig util root_pattern
           return util.root_pattern(".git")(fname) or vim.fs.dirname(fname)
         end,
-        settings = config.settings or {},
+        settings = settings,
       },
     }
   end
 
-  -- Setup the LSP server
-  lspconfig.essence_lsp.setup(config.settings or {})
-
+  lspconfig.essence_lsp.setup(settings)
   return true
+end
+
+---Setup LSP configuration for essence
+---@param config LspConfig LSP configuration
+---@return boolean success Whether setup was successful
+function M.setup(config)
+  -- Default to enabled if not specified
+  if config.enabled == false then
+    return false
+  end
+
+  -- TODO: Automatically download conjure binary if not present
+  local cmd = config.cmd or { "conjure", "lsp" }
+  local binary = cmd[1]
+
+  -- Check if conjure binary is available
+  if vim.fn.executable(binary) ~= 1 then
+    vim.notify(
+      string.format(
+        "essence.nvim LSP: '%s' binary not found in PATH, skipping LSP setup\n"
+          .. "Please install conjure or set a custom command in config",
+        binary
+      ),
+      vim.log.levels.WARN
+    )
+    return false
+  end
+
+  local settings = config.settings or {}
+
+  -- Use vim.lsp.config API for Neovim 0.11+, fallback to lspconfig for older versions
+  if vim.lsp.config then
+    return setup_vimlsp(cmd, settings)
+  else
+    return setup_lspconfig(cmd, settings)
+  end
 end
 
 return M
