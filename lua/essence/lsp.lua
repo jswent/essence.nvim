@@ -62,6 +62,7 @@ function M.setup(config)
   -- All checks passed, configure the LSP server
   local lspconfig = require("lspconfig")
   local configs = require("lspconfig.configs")
+  local util = require("lspconfig.util")
 
   -- Register essence_lsp if it's not already registered
   if not configs.essence_lsp then
@@ -70,6 +71,14 @@ function M.setup(config)
         cmd = cmd,
         filetypes = { "essence" },
         single_file_support = true,
+        root_dir = function(fname)
+          -- Use LazyVim's root detection if available
+          if _G.LazyVim and _G.LazyVim.root and _G.LazyVim.root.git then
+            return _G.LazyVim.root.git()
+          end
+          -- Fallback to lspconfig util root_pattern
+          return util.root_pattern(".git")(fname) or vim.fs.dirname(fname)
+        end,
         settings = config.settings or {},
       },
     }
