@@ -3,12 +3,15 @@
 ---@field color string Icon color (hex format)
 ---@field hl string Highlight group for mini.icons
 
----@class LspConfig
-
 ---@class EssenceConfig
 ---@field conceal boolean Enable concealing of operators with Unicode symbols (default: false)
 ---@field icon IconConfig Icon configuration for the essence filetype
 ---@field lsp LspConfig|boolean LSP configuration (boolean for enable/disable, or full config table)
+
+-- User-facing type aliases
+---@alias IconConfigUser {icon?: string, color?: string, hl?: string}
+---@alias LspConfigUser {enabled?: boolean, cmd?: string[], settings?: table}
+---@alias EssenceConfigUser {conceal?: boolean, icon?: IconConfigUser, lsp?: LspConfigUser|boolean}
 
 local M = {}
 
@@ -51,7 +54,7 @@ local function setup_icons()
 end
 
 ---Setup essence.nvim plugin
----@param opts? EssenceConfig User configuration options
+---@param opts? EssenceConfigUser User configuration options
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", default_config, opts or {})
   setup_icons()
