@@ -10,7 +10,8 @@
 
 -- User-facing type aliases
 ---@alias IconConfigUser {icon?: string, color?: string, hl?: string}
----@alias LspConfigUser {enabled?: boolean, cmd?: string[], settings?: table}
+---@alias LspFmtConfigUser {enabled?: boolean}
+---@alias LspConfigUser {enabled?: boolean, cmd?: string[], fmt?: LspFmtConfigUser, settings?: table}
 ---@alias EssenceConfigUser {conceal?: boolean, icon?: IconConfigUser, lsp?: LspConfigUser|boolean}
 
 local M = {}
@@ -26,6 +27,9 @@ local default_config = {
   lsp = {
     enabled = true,
     cmd = { "conjure", "lsp" },
+    fmt = {
+      enabled = false,
+    },
     settings = {},
   },
 }

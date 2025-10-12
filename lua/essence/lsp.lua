@@ -1,22 +1,37 @@
 ---@class LspConfig
 ---@field enabled boolean Enable LSP integration (default: true)
 ---@field cmd table|nil LSP server command (default: { "conjure", "lsp" })
+---@field fmt LspFmtConfig|nil LSP formatter configuration (default: { enabled: false })
 ---@field settings table|nil LSP server settings
+
+---@class LspFmtConfig
+---@field enabled boolean Enable LSP built-in formatter (default: false)
 
 local M = {}
 
 ---Setup LSP using vim.lsp.config API (Neovim 0.11+)
 ---@param cmd table Command to run the LSP server
+---@param fmt LspFmtConfig LSP formatter settings
 ---@param settings table Server settings
 ---@return boolean success Whether setup was successful
-local function setup_vimlsp(cmd, settings)
-  vim.lsp.config("essence_lsp", {
+local function setup_vimlsp(cmd, fmt, settings)
+  ---@type vim.lsp.Config
+  local config = {
     cmd = cmd,
     filetypes = { "essence" },
     root_markers = { ".git" },
     single_file_support = true,
     settings = settings,
-  })
+  }
+
+  if fmt.enabled == false then
+    config.on_attach = function(client, _)
+      client.server_capabilities.documentFormattingProvider = false
+      client.server_capabilities.documentRangeFormattingProvider = false
+    end
+  end
+
+  vim.lsp.config("essence_lsp", config)
 
   vim.lsp.enable("essence_lsp")
   return true
@@ -86,11 +101,13 @@ function M.setup(config)
     return false
   end
 
+  local fmt = config.fmt or { enabled = false }
+
   local settings = config.settings or {}
 
   -- Use vim.lsp.config API for Neovim 0.11+, fallback to lspconfig for older versions
   if vim.lsp.config then
-    return setup_vimlsp(cmd, settings)
+    return setup_vimlsp(cmd, fmt, settings)
   else
     return setup_lspconfig(cmd, settings)
   end
